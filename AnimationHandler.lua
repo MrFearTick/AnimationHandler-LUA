@@ -41,7 +41,8 @@ function Handler.new(animatorObject : Animator, name : string)
 	local cache = {}
 	
 	local generatedObjects = {}
-	
+
+	if AnimationsCache[name] then error("Can't create 2 or more Handlers on the same Animator.", 5) end
 	AnimationsCache[name] = newHandleObject
 	
 	function newHandleObject:Load(config : animationConfig)
