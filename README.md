@@ -185,10 +185,49 @@ print("Countinue.") -- Will print 2 seconds after the Pause.
 
 ### :Wait()
 
-```lua
+To yield until a given Animation ends, we must use the `Handle:Wait(config : animationConfig)`  
 
+> [!WARNING]
+> the Method ":Wait()" won't work on Animations that are Looped!
+> 
+> The reason being that the **AnimationTrack.Ended** signal doesn't fire when the Animations are looped, since technically they never end. Unless an external action stops the playing animation.  
+
+**Example:**  
+
+In this example, consider the "Module.TrackConfig.DefaultNoLoop" as a **TrackConfig** that is *NOT LOOPING*!
+
+```lua
+local Handler = Module.new(Player.Character.Humanoid.Animator, Player.UserId)
+
+Handler:Play(Module.Animations.Emote, Module.TrackConfig.DefaultNoLoop, Enum.AnimationPriority.Action4)
+
+Handler:Wait(Module.Animations.Emote) -- Will yield the code until the "Emote" Animation finishes.
+
+print("Finished.")
 ```
 
 <br />
 
-#
+### :Destroy()
+
+This Method will destroy the **Handler**. Also stopping any animation that was played using the Handler as it removes itself.
+
+**Example:**
+
+```lua
+local Handler = Module.new(Player.Character.Humanoid.Animator, Player.UserId)
+
+Handler:Play(Module.Animations.Emote, Module.TrackConfig.Default, Enum.AnimationPriority.Action4)
+task.wait(3)
+
+Handler:Stop(Module.Animations.Emote)
+
+Handler:Destroy() -- We destroy the Handler, never intending to use it again on this host. (Animator)
+```
+
+> [!NOTE]
+> There is a Alias for the Method ":Destroy()", `Module.destroy(name : string)`
+>
+> As you can guess, the **Name** parameter being the name of the Handler we want to destroy.
+
+<br />
