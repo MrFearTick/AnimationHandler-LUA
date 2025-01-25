@@ -1,5 +1,5 @@
 # AnimationHandler-LUA
-An Animation Handler written for Roblox.
+An Animation Handler for Roblox.
 
 ### *Please don't use without giving credit to [@MrFearTick]*
 
