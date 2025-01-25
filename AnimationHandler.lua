@@ -1,7 +1,7 @@
 --!strict
 
 -- Animation Module by @MrFearTick 
--- Version 1
+-- Version 1.1
 
 --/ Variables /--
 
@@ -28,11 +28,8 @@ Handler.Animations = {
 }
 
 Handler.TrackConfig = {
-	["Default"] = {["Speed"] = 1, ["Looped"] = false},
-	["DefaultLooped"] = {["Speed"] = 1, ["Looped"] = true},
-	
-	["Fast"] = {["Speed"] = 2, ["Looped"] = false},
-	["FastLooped"] = {["Speed"] = 2, ["Looped"] = true}
+	["Default"] = {["Speed"] = 1, ["Looped"] = true},
+	["Fast"] = {["Speed"] = 2, ["Looped"] = true}
 }
 
 --/ Functions /--
@@ -43,16 +40,20 @@ function Handler.new(animatorObject : Animator, name : string)
 	local animator = animatorObject
 	local cache = {}
 	
+	local generatedObjects = {}
+	
 	AnimationsCache[name] = newHandleObject
 	
 	function newHandleObject:Load(config : animationConfig)
-		local animationObject = Instance.new("Animation");
-		animationObject.AnimationId = config.Id; animationObject.Parent = animator
-		animationObject.Name = config.Name
+		if not cache[config.Name] then
+			local animationObject = Instance.new("Animation");
+			animationObject.AnimationId = config.Id; animationObject.Parent = animator
+			animationObject.Name = config.Name
+			table.insert(generatedObjects, animationObject)
 		
-		local animationTrack = animator:LoadAnimation(animationObject)
-		
-		if not cache[config.Name] then cache[config.Name] = animationTrack
+			local animationTrack = animator:LoadAnimation(animationObject)
+			cache[config.Name] = animationTrack
+			
 		else warn("This Animation is already loaded on the Animator.") return end
 	end
 	
@@ -90,8 +91,17 @@ function Handler.new(animatorObject : Animator, name : string)
 	
 	function newHandleObject:Wait(config : animationConfig)
 		local animationTrack = getAnimation(config.Name); if not animationTrack then return end
-	
+
 		animationTrack.Ended:Wait()
+	end
+	
+	function newHandleObject:Destroy()
+		for _, track in pairs(animator:GetPlayingAnimationTracks()) do newHandleObject:Stop({["Name"] = track.Name, ["Id"] = track.Animation.AnimationId}) end
+		for _, object in pairs(generatedObjects) do object:Destroy() end
+		for _, object in pairs(cache) do object:Destroy() end
+		
+		table.clear(newHandleObject); table.clear(generatedObjects); table.clear(cache)
+		AnimationsCache[name] = nil
 	end
 	
 	return setmetatable(newHandleObject, Handler)
@@ -101,6 +111,11 @@ end
 
 function Handler.find(name : string) : {}?
 	if AnimationsCache[name] then return AnimationsCache[name]
+	else warn(`There isn't an object with the name: {name}`) return end
+end
+
+function Handler.destroy(name : string)
+	if AnimationsCache[name] then AnimationsCache[name]:Destroy()
 	else warn(`There isn't an object with the name: {name}`) return end
 end
 
