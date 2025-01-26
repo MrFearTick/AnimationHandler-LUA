@@ -7,7 +7,7 @@
 
 local Handler = {}
 local AnimationsCache = {}
-Handler.__index = {}
+Handler.__index = Handler
 
 -- Types
 
